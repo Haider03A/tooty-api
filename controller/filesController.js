@@ -56,13 +56,19 @@ const addOne = async (req, res) => {
 }
 
 const updateOne = async (req, res) => {
-    const { fileId, newFileName } = req.query
+    const { fileId } = req.params
+    const { newFileName } = req.query
     const { error, value: newFileInfo } = filesValidator.updateOneSchema.validate({ fileId, newFileName })
 
     if (!error) {
         try {
             const updatedFileInfo = await FilesQuery.updateOne(newFileInfo)
-            updatedFileInfo ? res.status(200).json(updatedFileInfo) : res.status(400).json({ message: 'File Id is not defined' })
+            if (updatedFileInfo) {
+                res.status(200).json(updatedFileInfo)
+
+                return
+            }
+            res.status(400).json({ message: 'File Id is not defined' })
         } catch (err) {
             console.log(err)
             res.status(500).json({ message: 'Error from server' })

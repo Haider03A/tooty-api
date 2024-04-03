@@ -14,9 +14,9 @@ const getAll = async (req, res) => {
     }
 }
 
-const getMultiByFileId = async (req, res) => {
+const getMulti = async (req, res) => {
     const { fileId } = req.params
-    const { error, value: pageInfo } = pagesValidator.getMultiByFileIdSchema.validate({ fileId })
+    const { error, value: pageInfo } = pagesValidator.getMultiSchema.validate({ fileId })
     if (!error) {
         try {
             const pages = await PagesQuery.getFilter(pageInfo)
@@ -35,9 +35,9 @@ const getMultiByFileId = async (req, res) => {
     res.status(400).json({ message: error.details[0].message })
 }
 
-const getOneByFileIdAndPageId = async (req, res) => {
+const getOne = async (req, res) => {
     const { fileId, pageId } = req.params
-    const { error, value: pageInfo } = pagesValidator.getOneByFileIdAndPageIdSchema.validate({ fileId, pageId })
+    const { error, value: pageInfo } = pagesValidator.getOneSchema.validate({ fileId, pageId })
     if (!error) {
         try {
             const onePage = await PagesQuery.getOne(pageInfo)
@@ -86,7 +86,32 @@ const addOne = async (req, res) => {
     res.status(400).json({ message: error.details[0].message })
 }
 
-const deleteOneByFileIdAndPageId = async (req, res) => {
+const updateOne = async (req, res) => {
+    const { fileId, pageId } = req.params
+    const { newPageName, newPageTitle } = req.query
+    const { error, value: newPageInfo } = pagesValidator.updateOneSchema.validate({ fileId, pageId, newPageName, newPageTitle })
+
+    if (!error) {
+        try {
+            const updatedPageInfo = await FilesQuery.updateOne(newPageInfo)
+            if (updatedPageInfo) {
+                res.status(200).json(updatedPageInfo)
+                
+                return
+            } 
+            res.status(400).json({ message: 'File Id is not defined' })
+        } catch (err) {
+            console.log(err)
+            res.status(500).json({ message: 'Error from server' })
+        }
+        
+        return
+    }
+    res.status(400).json({ message: error.details[0].message })
+
+}
+
+const deleteOne = async (req, res) => {
     const { fileId, pageId } = req.params
     const { error, value: deletePageInfo } = pagesValidator.daleteOneSchema.validate({ fileId, pageId })
 
@@ -107,9 +132,10 @@ const deleteOneByFileIdAndPageId = async (req, res) => {
 
 export const pagesController = {
     getAll,
-    getMultiByFileId,
-    getOneByFileIdAndPageId,
+    getMulti,
+    getOne,
     addOne,
-    deleteOneByFileIdAndPageId
+    updateOne,
+    deleteOne
 
 } 

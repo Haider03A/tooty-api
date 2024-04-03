@@ -1,12 +1,12 @@
 import Joi from 'joi'
 
-const getMultiByFileIdSchema = Joi.object({
+const getMultiSchema = Joi.object({
     fileId: Joi.number()
         .required()
 
 })
 
-const getOneByFileIdAndPageIdSchema = Joi.object({
+const getOneSchema = Joi.object({
     fileId: Joi.number()
         .required(),
     pageId: Joi.number()
@@ -51,4 +51,4 @@ const daleteOneSchema = Joi.object({
         .required(),
 })
 
-export const pagesValidator = { getMultiByFileIdSchema, getOneByFileIdAndPageIdSchema, addOneSchema, updateOneSchema, daleteOneSchema }
+export const pagesValidator = { getMultiSchema, getOneSchema, addOneSchema, updateOneSchema, daleteOneSchema }
