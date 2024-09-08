@@ -1,24 +1,16 @@
-import mongoose, { Schema } from 'mongoose';
-import AutoIncrementFactory  from 'mongoose-sequence'
+import { Schema } from 'mongoose';
 
-const AutoIncrement = AutoIncrementFactory(mongoose);
-
-const nodelName = 'File';
-const schema = new Schema({
+export const fileSchema = new Schema({
     fileId: {
-        type: Number,
+        type: String,
+        required: true,
         unique: true,
-        
+
     },
     fileName: {
         type: String,
         required: true
-    },
-    
+    }
 
-}, { timestamps: true } );
+}, { timestamps: true });
 
-schema.plugin(AutoIncrement, { 'inc_field': 'fileId' });
-
-// create model
-export const FileSchema = mongoose.model(nodelName, schema);

@@ -13,5 +13,9 @@ router.post('/', filesController.addOne)
 router.patch('/:fileId', filesController.updateOne)
 router.delete('/:fileId', filesController.deleteOne)
 
+router.post('/many', filesController.addMany)
+// router.patch('/:fileId', filesController.updateOne)
+// router.delete('/:fileId', filesController.deleteOne)
+
 
 export default router
