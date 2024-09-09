@@ -3,7 +3,7 @@ import { FileModel } from '../model/fileModel.js'
 
 const getAll = async () => {
     try {
-        const files = await FileModel.find({})
+        const files = await FileModel.fidnd({})
 
         return files
     } catch (err) {

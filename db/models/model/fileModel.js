@@ -1,6 +1,20 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
-import { fileSchema } from '../schema/fileSchema.js'
+const fileSchema = new Schema({
+    fileId: {
+        type: String,
+        required: true,
+        unique: true,
+
+    },
+    fileName: {
+        type: String,
+        required: true
+    }
+
+}, { timestamps: true });
+
+
 
 const nodelName = 'File';
 

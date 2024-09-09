@@ -1,9 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
-import AutoIncrementFactory  from 'mongoose-sequence'
 
-const AutoIncrement = AutoIncrementFactory(mongoose);
 
-const nodelName = 'Page';
 const schema = new Schema({
     pageId: {
         type: Number,
@@ -21,11 +18,10 @@ const schema = new Schema({
         type: String,
         required: true
     }
-    
 
-}, { timestamps: true } );
 
-schema.plugin(AutoIncrement, { 'inc_field': 'pageId' });
+}, { timestamps: true });
 
+const nodelName = 'Page';
 // create model
-export const PageSchema = mongoose.model(nodelName, schema);
+export const PageModel = mongoose.model(nodelName, schema);

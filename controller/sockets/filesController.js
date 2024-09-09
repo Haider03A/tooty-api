@@ -1,14 +1,14 @@
-import { FilesQuery } from '../db/models/queries/filesQuerie.js'
-import { PagesQuery } from '../db/models/queries/pagesQuerie.js'
+import { FilesQuery } from '../../db/models/queries/filesQuerie.js'
+// import { PagesQuery } from '../../db/models/queries/pagesQuerie.js'
 
-import { filesValidator } from '../validator/filesVaildator.js'
+import { filesValidator } from '../../validator/restApi/filesVaildator.js'
 
-const getAll = async (req, res) => {
+const getAll = async () => {
     try {
         const allFiles = await FilesQuery.getAll()
-        res.status(200).json(allFiles);
+        return allFiles
     } catch (err) {
-        res.status(500).json({ message: 'Error from server' })
+        throw { message: 'Error from server' }
     }
 
 }

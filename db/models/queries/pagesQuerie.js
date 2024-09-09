@@ -1,8 +1,8 @@
-import { PageSchema } from '../schema/pageSchema.js'
+import { PageModel } from '../model/pageModel'
 
 const getAll = async () => {
     try {
-        const pages = await PageSchema.find({})
+        const pages = await PageModel.find({})
 
         return pages
     } catch (err) {
@@ -13,7 +13,7 @@ const getAll = async () => {
 
 const getFilter = async (filter) => {
     try {
-        const pages = await PageSchema.find(filter)
+        const pages = await PageModel.find(filter)
 
         return pages
     } catch (err) {
@@ -24,7 +24,7 @@ const getFilter = async (filter) => {
 
 const getOne = async (filter) => {
     try {
-        const onePage = await PageSchema.findOne(filter)
+        const onePage = await PageModel.findOne(filter)
 
         return onePage
     } catch (err) {
@@ -35,7 +35,7 @@ const getOne = async (filter) => {
 
 const addOne = async (pageInfo) => {
     try {
-        const newPages = new PageSchema(pageInfo);
+        const newPages = new PageModel(pageInfo);
         await newPages.save()
 
         return newPages
@@ -50,7 +50,7 @@ const updateOne = async (newPageInfo) => {
     try {
         const filter = { pageId };
         const update = { pageName: newPageName, pageTitle: newPageTitle };
-        const updatedPageInfo = await PageSchema.findOneAndUpdate(filter, update, { new: true })
+        const updatedPageInfo = await PageModel.findOneAndUpdate(filter, update, { new: true })
 
         return updatedPageInfo
     } catch (err) {
@@ -63,7 +63,7 @@ const deleteOne = async (deletePageInfo) => {
     const { pageId } = deletePageInfo
     try {
         const filter = { pageId };
-        const deletedPageInfo = await PageSchema.findOneAndDelete(filter, { new: true })
+        const deletedPageInfo = await PageModel.findOneAndDelete(filter, { new: true })
 
         return deletedPageInfo
     } catch (err) {
@@ -75,7 +75,7 @@ const deleteMulti = async (deletePagesInfo) => {
     const { fileId } = deletePagesInfo
     try {
         const filter = { fileId };
-        const deletedPagesInfo = await PageSchema.deleteMany(filter)
+        const deletedPagesInfo = await PageModel.deleteMany(filter)
 
         return deletedPagesInfo
     } catch (err) {

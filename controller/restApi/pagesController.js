@@ -1,7 +1,7 @@
-import { PagesQuery } from '../db/models/queries/pagesQuerie.js'
-import { FilesQuery } from '../db/models/queries/filesQuerie.js'
+import { PagesQuery } from '../../db/models/queries/pagesQuerie.js'
+import { FilesQuery } from '../../db/models/queries/filesQuerie.js'
 
-import { pagesValidator } from '../validator/pagesVaildator.js'
+import { pagesValidator } from '../../validator/restApi/pagesVaildator.js'
 
 
 const getAll = async (req, res) => {
@@ -96,15 +96,15 @@ const updateOne = async (req, res) => {
             const updatedPageInfo = await FilesQuery.updateOne(newPageInfo)
             if (updatedPageInfo) {
                 res.status(200).json(updatedPageInfo)
-                
+
                 return
-            } 
+            }
             res.status(400).json({ message: 'File Id is not defined' })
         } catch (err) {
             console.log(err)
             res.status(500).json({ message: 'Error from server' })
         }
-        
+
         return
     }
     res.status(400).json({ message: error.details[0].message })
