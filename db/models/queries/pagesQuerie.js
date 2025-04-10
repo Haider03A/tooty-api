@@ -1,94 +1,167 @@
-import { PageModel } from '../model/pageModel'
+import { PageModel } from "../model/pageModel.js";
+import { FileModel } from "../model/fileModel.js";
 
-const getAll = async () => {
-    try {
-        const pages = await PageModel.find({})
+// Group
 
-        return pages
-    } catch (err) {
-        throw err
+const addGroup = async (pagesInfo) => {
+  try {
+    const filesId = pagesInfo.map((page) => page.fileId);
+    const fileIsFound = await FileModel.find({ _id: { $in: filesId } });
+    if (fileIsFound.length === 0) {
+      const pagesNotCreated = pagesInfo;
+      return {
+        statusCode: 404,
+        pagesNotCreated,
+        message: "All fileId not found to create pages",
+      };
+    }
+    const fileIds = fileIsFound.map((file) => file._id.toString());
+    const pagesNotCreated = pagesInfo.filter(
+      (page) => !fileIds.includes(page.fileId)
+    );
+    const pagesToCreated = pagesInfo.filter((page) =>
+      fileIds.includes(page.fileId)
+    );
+
+    const newPages = await PageModel.insertMany(pagesToCreated);
+
+    if (pagesNotCreated.length > 0) {
+      return {
+        statusCode: 207,
+        newPages,
+        pagesNotCreated,
+        pagesToCreated,
+        message: "Ok, but some pages are not created",
+      };
     }
 
-}
+    return {
+      statusCode: 200,
+      message: "Ok",
+      newPages,
+      pagesNotCreated,
+      pagesToCreated,
+    };
+  } catch (error) {
+    throw { statusCode: 500, message: "Error from server", error };
+  }
+};
 
-const getFilter = async (filter) => {
-    try {
-        const pages = await PageModel.find(filter)
+const updateGroup = async (pagesInfo) => {
+  try {
+    const clindPagesIds = pagesInfo.map((page) => page.pageId);
 
-        return pages
-    } catch (err) {
-        throw err
+    const dbPagesIsFound = await PageModel.find({
+      _id: { $in: clindPagesIds },
+    });
+
+    if (dbPagesIsFound.length === 0) {
+      const pagesNotUpdated = pagesInfo;
+      return {
+        statusCode: 404,
+        pagesNotUpdated,
+        message: "All pagesIds are not found to update",
+      };
+    }
+    const dbPagesIds = dbPagesIsFound.map((page) => page._id.toString());
+
+    const pagesNotUpdated = pagesInfo.filter(
+      (page) => !dbPagesIds.includes(page.pageId)
+    );
+
+    const pagesToUpdate = pagesInfo.filter((page) =>
+      dbPagesIds.includes(page.pageId)
+    );
+
+    const bulkOps = pagesToUpdate.map((page) => ({
+      updateOne: {
+        filter: { _id: page.pageId },
+        update: {
+          $set: { pageName: page.newPageName, pageTitle: page.newPageTitle },
+        },
+      },
+    }));
+
+    const statusUpdatesPages = await PageModel.bulkWrite(bulkOps);
+
+    if (pagesNotUpdated.length > 0) {
+      return {
+        statusCode: 207,
+        pagesToUpdate,
+        pagesNotUpdated,
+        statusUpdatesPages,
+        message: "Ok, but some pages are not updated",
+      };
     }
 
-}
+    return {
+      statusCode: 200,
+      pagesToUpdate,
+      pagesNotUpdated,
+      statusUpdatesPages,
+      message: "Ok",
+    };
+  } catch (error) {
+    throw { statusCode: 500, message: "Error from server", error };
+  }
+};
 
-const getOne = async (filter) => {
-    try {
-        const onePage = await PageModel.findOne(filter)
+const deleteGroup = async (pagesInfo) => {
+  try {
+    const clindPagesIds = pagesInfo.map((page) => page.pageId);
 
-        return onePage
-    } catch (err) {
-        throw err
+    const dbPagesIsFound = await PageModel.find({
+      _id: { $in: clindPagesIds },
+    });
+
+    if (dbPagesIsFound.length === 0) {
+      const pagesIdsNotDeleted = pagesInfo;
+      return {
+        statusCode: 404,
+        pagesIdsNotDeleted,
+        message: "All pagesIds are not found to delete",
+      };
     }
 
-}
+    const dbPagesIds = dbPagesIsFound.map((page) => page._id.toString());
 
-const addOne = async (pageInfo) => {
-    try {
-        const newPages = new PageModel(pageInfo);
-        await newPages.save()
+    const pagesIdsNotDeleted = clindPagesIds.filter(
+      (page) => !dbPagesIds?.includes(page)
+    );
 
-        return newPages
-    } catch (err) {
-        throw err
+    const pagesDeleted = dbPagesIsFound.filter((page) =>
+      dbPagesIds?.includes(page._id.toString())
+    );
+    const pagesIdsToDelete = pagesDeleted.map((page) => page._id.toString());
+
+    const statusDeletedPages = await PageModel.deleteMany({
+      _id: { $in: pagesIdsToDelete },
+    });
+
+    if (pagesIdsNotDeleted.length > 0) {
+      return {
+        statusCode: 207,
+        pagesIdsNotDeleted,
+        pagesDeleted,
+        statusDeletedPages,
+        message: "Ok, but some Pages are not deleted",
+      };
     }
 
-}
-
-const updateOne = async (newPageInfo) => {
-    const { pageId, newPageName, newPageTitle } = newPageInfo
-    try {
-        const filter = { pageId };
-        const update = { pageName: newPageName, pageTitle: newPageTitle };
-        const updatedPageInfo = await PageModel.findOneAndUpdate(filter, update, { new: true })
-
-        return updatedPageInfo
-    } catch (err) {
-        throw err
-
-    }
-}
-
-const deleteOne = async (deletePageInfo) => {
-    const { pageId } = deletePageInfo
-    try {
-        const filter = { pageId };
-        const deletedPageInfo = await PageModel.findOneAndDelete(filter, { new: true })
-
-        return deletedPageInfo
-    } catch (err) {
-        throw err
-    }
-}
-
-const deleteMulti = async (deletePagesInfo) => {
-    const { fileId } = deletePagesInfo
-    try {
-        const filter = { fileId };
-        const deletedPagesInfo = await PageModel.deleteMany(filter)
-
-        return deletedPagesInfo
-    } catch (err) {
-        throw err
-    }
-}
+    return {
+      statusCode: 200,
+      pagesIdsNotDeleted,
+      pagesDeleted,
+      statusDeletedPages,
+      message: "Ok",
+    };
+  } catch (error) {
+    throw { statusCode: 500, message: "Error from server", error };
+  }
+};
 
 export const PagesQuery = {
-    getAll,
-    getFilter,
-    getOne,
-    addOne,
-    updateOne,
-    deleteMulti,
-    deleteOne
-}
+  addGroup,
+  updateGroup,
+  deleteGroup,
+};

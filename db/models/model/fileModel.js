@@ -1,22 +1,18 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema } from "mongoose";
 
-const fileSchema = new Schema({
-    fileId: {
-        type: String,
-        required: true,
-        unique: true,
-
-    },
+const FileSchema = new Schema(
+  {
     fileName: {
-        type: String,
-        required: true
-    }
+      type: String,
+      required: true,
+      length: 50,
+      trim: true,
+    },
+  },
+  { timestamps: true, versionKey: false }
+);
 
-}, { timestamps: true });
-
-
-
-const nodelName = 'File';
+const nodelName = "File";
 
 // create model
-export const FileModel = mongoose.model(nodelName, fileSchema);
+export const FileModel = mongoose.model(nodelName, FileSchema);
