@@ -1,6 +1,6 @@
 import Joi from "joi";
 
-import { customJoi } from "./tools/customJoi.js";
+import { customJoi } from "./others/customJoi.js";
 
 // <-- Group -->
 

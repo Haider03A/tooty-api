@@ -1,6 +1,6 @@
 import Joi from "joi";
 
-import { customJoi } from "./tools/customJoi.js";
+import { customJoi } from "./others/customJoi.js";
 
 const objectIdPattern = /^[a-fA-F0-9]{24}$/;
 const tempFileIdPattern = /^[a-zA-Z0-9]{9}-\d{13}$/;

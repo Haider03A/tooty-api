@@ -8,6 +8,11 @@ const FileSchema = new Schema(
       length: 50,
       trim: true,
     },
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
   },
   { timestamps: true, versionKey: false }
 );

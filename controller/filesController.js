@@ -92,9 +92,12 @@ const deleteOne = async (req, res) => {
 
 const addGroup = async (req, res) => {
   const files = req.files;
+  const { id: userId } = req.user;
+
   const filesInfo = req.files.map((file) => {
     return {
       fileName: file.fileName,
+      userId,
     };
   });
 
@@ -106,6 +109,7 @@ const addGroup = async (req, res) => {
       filesCreated: filesCreated?.map((file, i) => {
         return {
           fileId: file._id,
+          userId: file.userId,
           tempFileId: files[i].tempFileId,
           fileName: file.fileName,
         };
@@ -145,7 +149,6 @@ const updateGroup = async (req, res) => {
         filesUpdatedCount: statusUpdatesFiles?.modifiedCount,
         filesNotUpdatedCount: filesNotUpdated?.length,
         filesSendedFromClientCount: files?.length,
-        
       },
       message,
     });
