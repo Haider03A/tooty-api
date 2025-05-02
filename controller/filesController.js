@@ -129,6 +129,7 @@ const addGroup = async (req, res) => {
 
 const updateGroup = async (req, res) => {
   const files = req.files;
+  const user = req.user;
 
   try {
     const {
@@ -137,7 +138,7 @@ const updateGroup = async (req, res) => {
       filesNotUpdated,
       statusUpdatesFiles,
       message,
-    } = await FilesQuery.updateGroup(files);
+    } = await FilesQuery.updateGroup(files, user);
 
     res.status(statusCode).json({
       filesUpdated: filesToUpdate?.map((file) => ({
@@ -161,6 +162,7 @@ const updateGroup = async (req, res) => {
 
 const deleteGroup = async (req, res) => {
   const files = req.files;
+  const user = req.user;
 
   try {
     const {
@@ -169,7 +171,8 @@ const deleteGroup = async (req, res) => {
       filesIdsNotDeleted,
       statusDeletedFiles,
       message,
-    } = await FilesQuery.deleteGroup(files);
+    } = await FilesQuery.deleteGroup(files, user);
+
     res.status(statusCode).json({
       filesDeleted: filesToDelete?.map((file) => {
         return {
@@ -177,7 +180,7 @@ const deleteGroup = async (req, res) => {
           fileName: file.fileName,
         };
       }),
-      filesNotDeleted: filesIdsNotDeleted.map((fileId) => {
+      filesNotDeleted: filesIdsNotDeleted?.map((fileId) => {
         return {
           fileId: fileId,
         };

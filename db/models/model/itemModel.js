@@ -25,6 +25,11 @@ const ItemSchema = new Schema(
       trim: true,
       default: "",
     },
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
   },
   { timestamps: true, versionKey: false }
 );

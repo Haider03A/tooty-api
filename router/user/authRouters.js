@@ -15,6 +15,6 @@ router.post("/register", registerVaildator, registerController);
 router.post("/login", loginVaildator, loginController);
 router.post("/refreshToken", authorizedRefreshToken, renewRefreshToken);
 
-export const userRouter = Router();
+export const authRoute = Router();
 
-userRouter.use("/api/user", router);
+authRoute.use("/api/user", router);

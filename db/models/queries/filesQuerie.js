@@ -1,5 +1,6 @@
 import _ from "mongoose-sequence";
 import { FileModel } from "../model/fileModel.js";
+import { PageModel } from "../model/pageModel.js";
 
 // <-- Single -->
 
@@ -86,12 +87,14 @@ const addGroup = async (filesInfo) => {
   }
 };
 
-const updateGroup = async (filesInfo) => {
+const updateGroup = async (filesInfo, user) => {
   try {
+    const userId = user.id;
     const clindFilesIds = filesInfo.map((file) => file.fileId);
 
     const dbFilesIsFound = await FileModel.find({
       _id: { $in: clindFilesIds },
+      userId,
     });
 
     if (dbFilesIsFound.length === 0) {
@@ -143,16 +146,19 @@ const updateGroup = async (filesInfo) => {
   }
 };
 
-const deleteGroup = async (filesInfo) => {
+const deleteGroup = async (filesInfo, user) => {
   try {
+    const userId = user.id;
+
     const clindFilesIds = filesInfo.map((files) => files.fileId);
 
     const dbFilesIsFound = await FileModel.find({
       _id: { $in: clindFilesIds },
+      userId,
     });
 
     if (dbFilesIsFound.length === 0) {
-      const filesIdsNotDeleted = filesInfo;
+      const filesIdsNotDeleted = filesInfo.map((file) => file.fileId);
       return {
         statusCode: 404,
         filesIdsNotDeleted,
@@ -187,7 +193,6 @@ const deleteGroup = async (filesInfo) => {
 
     return {
       statusCode: 200,
-      filesIdsNotDeleted,
       filesToDelete,
       statusDeletedFiles,
       message: "Ok",

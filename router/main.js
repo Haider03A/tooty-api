@@ -1,5 +1,6 @@
 import express from "express";
 
+import { authRoute } from "./user/authRouters.js";
 import { fileRoute } from "./fileRoute.js";
 import { pageRoute } from "./pageRoute.js";
 import { itemRoute } from "./itemRoute.js";
@@ -17,6 +18,6 @@ router.use("/item", itemRoute);
 
 export const mainRouter = express.Router();
 
-mainRouter.use();
+mainRouter.use(authRoute);
 mainRouter.use("/api", authorizedUser, authorizedUserStatus, router);
 mainRouter.all("*", _404Page);

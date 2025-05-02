@@ -4,9 +4,11 @@ import { itemQuery } from "../db/models/queries/itemsQuerie.js";
 
 const addGroup = async (req, res) => {
   const items = req.items;
+  const user = req.user;
   const itemsInfo = items.map((item) => {
     return {
       pageId: item.pageId,
+      userId: user.id,
       tempItemId: item.tempItemId,
       itemName: item.itemName,
       itemCount: item.itemCount,
@@ -16,7 +18,7 @@ const addGroup = async (req, res) => {
 
   try {
     const { statusCode, newItems, itemsNotCreated, itemsToCreated, message } =
-      await itemQuery.addGroup(itemsInfo);
+      await itemQuery.addGroup(itemsInfo, user);
     res.status(statusCode).json({
       message,
       itemsCreated: newItems?.map((item, i) => {
@@ -53,6 +55,7 @@ const addGroup = async (req, res) => {
 
 const updateGroup = async (req, res) => {
   const items = req.items;
+  const user = req.user;
 
   try {
     const {
@@ -61,7 +64,7 @@ const updateGroup = async (req, res) => {
       itemsNotUpdated,
       statusUpdatesItems,
       message,
-    } = await itemQuery.updateGroup(items);
+    } = await itemQuery.updateGroup(items, user);
 
     res.status(statusCode).json({
       itemsUpdated: itemsToUpdate?.map((item) => ({
@@ -88,7 +91,7 @@ const updateGroup = async (req, res) => {
 
 const deleteGroup = async (req, res) => {
   const items = req.items;
-
+  const user = req.user;
   try {
     const {
       statusCode,
@@ -96,7 +99,7 @@ const deleteGroup = async (req, res) => {
       itemsIdsNotDeleted,
       statusDeletedItems,
       message,
-    } = await itemQuery.deleteGroup(items);
+    } = await itemQuery.deleteGroup(items, user);
     res.status(statusCode).json({
       itemsDeleted: itemsDeleted?.map((item) => {
         return {

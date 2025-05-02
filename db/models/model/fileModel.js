@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import { PageModel } from "./pageModel.js";
 
 const FileSchema = new Schema(
   {
@@ -16,6 +17,13 @@ const FileSchema = new Schema(
   },
   { timestamps: true, versionKey: false }
 );
+
+FileSchema.pre("deleteMany", async function () {
+  const filesIdsToDelete = this.getFilter()._id.$in;
+  await PageModel.deleteMany({
+    fileId: { $in: filesIdsToDelete },
+  });
+});
 
 const nodelName = "File";
 

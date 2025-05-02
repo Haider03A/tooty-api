@@ -2,9 +2,12 @@ import { PagesQuery } from "../db/models/queries/pagesQuerie.js";
 
 const addGroup = async (req, res) => {
   const pages = req.pages;
+  const user = req.user;
+
   const pagesInfo = pages.map((page) => {
     return {
       fileId: page.fileId,
+      userId: user.id,
       tempPageId: page.tempPageId,
       pageName: page.pageName,
       pageTitle: page.pageTitle,
@@ -12,9 +15,8 @@ const addGroup = async (req, res) => {
   });
 
   try {
-    const { statusCode, newPages, pagesNotCreated, pagesToCreated, message } = await PagesQuery.addGroup(
-      pagesInfo
-    );
+    const { statusCode, newPages, pagesNotCreated, pagesToCreated, message } =
+      await PagesQuery.addGroup(pagesInfo, user);
     res.status(statusCode).json({
       pagesCreated: newPages?.map((page, i) => {
         return {
@@ -37,7 +39,7 @@ const addGroup = async (req, res) => {
         pagesCreatedCount: pagesToCreated?.length,
         pagesNotCreatedCount: pagesNotCreated?.length,
         pagesSendedFromClientCount: pages?.length,
-    },
+      },
       message,
     });
   } catch (error) {
@@ -49,6 +51,7 @@ const addGroup = async (req, res) => {
 
 const updateGroup = async (req, res) => {
   const pages = req.pages;
+  const user = req.user;
 
   try {
     const {
@@ -57,7 +60,7 @@ const updateGroup = async (req, res) => {
       pagesNotUpdated,
       statusUpdatesPages,
       message,
-    } = await PagesQuery.updateGroup(pages);
+    } = await PagesQuery.updateGroup(pages, user);
 
     res.status(statusCode).json({
       pagesUpdated: pagesToUpdate?.map((page) => ({
@@ -70,7 +73,6 @@ const updateGroup = async (req, res) => {
         pagesUpdatedCount: statusUpdatesPages?.modifiedCount,
         pagesNotUpdatedCount: pagesNotUpdated?.length,
         pagesSendedFromClientCount: pages?.length,
-        
       },
       message,
     });
@@ -83,7 +85,7 @@ const updateGroup = async (req, res) => {
 
 const deleteGroup = async (req, res) => {
   const pages = req.pages;
-
+  const user = req.user;
   try {
     const {
       statusCode,
@@ -91,7 +93,7 @@ const deleteGroup = async (req, res) => {
       pagesIdsNotDeleted,
       statusDeletedPages,
       message,
-    } = await PagesQuery.deleteGroup(pages);
+    } = await PagesQuery.deleteGroup(pages, user);
     res.status(statusCode).json({
       pagesDeleted: pagesDeleted?.map((page) => {
         return {
@@ -101,11 +103,7 @@ const deleteGroup = async (req, res) => {
           pageTitle: page.pageTitle,
         };
       }),
-      pagesNotDeleted: pagesIdsNotDeleted.map((page) => {
-        return {
-          pageId: page.pageId,
-        };
-      }),
+      pagesNotDeleted: pagesIdsNotDeleted.map((pageId) => ({ pageId })),
       statusDeletePages: {
         pagesDeletedCount: statusDeletedPages?.deletedCount,
         pagesNotDeletedIds: pagesIdsNotDeleted?.length,
@@ -118,10 +116,10 @@ const deleteGroup = async (req, res) => {
     res.status(error.statusCode).json({ message: error.message });
     return;
   }
-}
+};
 
 export const pagesController = {
   addGroup,
   updateGroup,
-  deleteGroup
+  deleteGroup,
 };

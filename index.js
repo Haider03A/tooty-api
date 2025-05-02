@@ -5,8 +5,8 @@ import coockieParser from "cookie-parser";
 import { config } from "./config.js";
 import { connectDB } from "./db/config/db.js";
 
-import { userRouter } from "./router/user/authRouters.js";
 import { mainRouter } from "./router/main.js";
+import { othersErorrHandler } from "./controller/others/othersErorrHandler.js";
 
 const app = express();
 
@@ -16,8 +16,8 @@ app.use(helmet());
 app.use(coockieParser());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+app.use(othersErorrHandler);
 
-app.use(userRouter);
 app.use(mainRouter);
 
 app.listen(config.port, () => {

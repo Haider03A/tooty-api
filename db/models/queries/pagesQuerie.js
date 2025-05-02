@@ -3,10 +3,15 @@ import { FileModel } from "../model/fileModel.js";
 
 // Group
 
-const addGroup = async (pagesInfo) => {
+const addGroup = async (pagesInfo, user) => {
   try {
+    const userId = user.id;
+
     const filesId = pagesInfo.map((page) => page.fileId);
-    const fileIsFound = await FileModel.find({ _id: { $in: filesId } });
+    const fileIsFound = await FileModel.find({
+      _id: { $in: filesId },
+      userId,
+    });
     if (fileIsFound.length === 0) {
       const pagesNotCreated = pagesInfo;
       return {
@@ -47,12 +52,14 @@ const addGroup = async (pagesInfo) => {
   }
 };
 
-const updateGroup = async (pagesInfo) => {
+const updateGroup = async (pagesInfo, user) => {
   try {
+    const userId = user.id;
     const clindPagesIds = pagesInfo.map((page) => page.pageId);
 
     const dbPagesIsFound = await PageModel.find({
       _id: { $in: clindPagesIds },
+      userId,
     });
 
     if (dbPagesIsFound.length === 0) {
@@ -106,16 +113,18 @@ const updateGroup = async (pagesInfo) => {
   }
 };
 
-const deleteGroup = async (pagesInfo) => {
+const deleteGroup = async (pagesInfo, user) => {
   try {
+    const userId = user.id;
     const clindPagesIds = pagesInfo.map((page) => page.pageId);
 
     const dbPagesIsFound = await PageModel.find({
       _id: { $in: clindPagesIds },
+      userId,
     });
 
     if (dbPagesIsFound.length === 0) {
-      const pagesIdsNotDeleted = pagesInfo;
+      const pagesIdsNotDeleted = pagesInfo.map((page) => page.pageId);
       return {
         statusCode: 404,
         pagesIdsNotDeleted,

@@ -1,6 +1,7 @@
 import mongoose, { Schema } from "mongoose";
+import { ItemModel } from "./itemModel.js";
 
-const schema = new Schema(
+const PageSchema = new Schema(
   {
     fileId: {
       type: Schema.Types.ObjectId,
@@ -15,18 +16,23 @@ const schema = new Schema(
       type: String,
       required: true,
     },
-    // userId: {
-    //   type: String,
-    //   default: "3612",
-    // },
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
   },
   { timestamps: true, versionKey: false }
 );
 
-// schema.pre(/^find/, function (next) {
-//   this.where({ userId: "3612" });
-//   next();
-// });
+PageSchema.pre("deleteMany", async function () {
+  const pagesDeleted = await this.model.find(this.getFilter());
+  const pagesIdsDeleted = pagesDeleted.map((page) => page._id.toString());
+  await ItemModel.deleteMany({
+    pageId: { $in: pagesIdsDeleted },
+  });
+});
+
 const nodelName = "Page";
 // create model
-export const PageModel = mongoose.model(nodelName, schema);
+export const PageModel = mongoose.model(nodelName, PageSchema);

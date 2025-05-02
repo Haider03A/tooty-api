@@ -3,10 +3,14 @@ import { PageModel } from "../model/pageModel.js";
 
 // Group
 
-const addGroup = async (itemsInfo) => {
+const addGroup = async (itemsInfo, user) => {
   try {
+    const userId = user.id;
     const pagesId = itemsInfo.map((item) => item.pageId);
-    const pagesIdsFound = await PageModel.find({ _id: { $in: pagesId } });
+    const pagesIdsFound = await PageModel.find({
+      _id: { $in: pagesId },
+      userId,
+    });
     if (pagesIdsFound.length === 0) {
       const itemsNotCreated = itemsInfo;
       return {
@@ -47,12 +51,15 @@ const addGroup = async (itemsInfo) => {
   }
 };
 
-const updateGroup = async (itemsInfo) => {
+const updateGroup = async (itemsInfo, user) => {
   try {
+    const userId = user.id;
+
     const clindItemsIds = itemsInfo.map((item) => item.itemId);
 
     const dbItemsIsFound = await ItemModel.find({
       _id: { $in: clindItemsIds },
+      userId,
     });
 
     if (dbItemsIsFound.length === 0) {
@@ -110,12 +117,15 @@ const updateGroup = async (itemsInfo) => {
   }
 };
 
-const deleteGroup = async (itemsInfo) => {
+const deleteGroup = async (itemsInfo, user) => {
   try {
+    const userId = user.id;
+
     const clindItemsIds = itemsInfo.map((item) => item.itemId);
 
     const dbItemsIsFound = await ItemModel.find({
       _id: { $in: clindItemsIds },
+      userId,
     });
 
     if (dbItemsIsFound.length === 0) {
@@ -140,6 +150,7 @@ const deleteGroup = async (itemsInfo) => {
 
     const statusDeletedItems = await ItemModel.deleteMany({
       _id: { $in: itemsIdsToDelete },
+      userId,
     });
 
     if (itemsIdsNotDeleted.length > 0) {
