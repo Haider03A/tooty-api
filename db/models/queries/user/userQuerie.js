@@ -40,6 +40,23 @@ const loginUser = async (user) => {
   }
 };
 
+const logoutUser = async (refreshToken) => {
+  try {
+    const user = await UserModel.findOne({ refreshToken });
+
+    if (!user) {
+      return { message: "Invalid refresh token", status: 401 };
+    }
+
+    user.refreshToken = null;
+    await user.save();
+
+    return { message: "User logged out successfully", status: 200 };
+  } catch (error) {
+    throw { message: "Error from server", status: 500, error };
+  }
+};
+
 const registerUser = async (user) => {
   try {
     const findToUser = await UserModel.findOne({ email: user.email });
@@ -53,7 +70,7 @@ const registerUser = async (user) => {
 
     return { message: "User Created successfully", status: 201, user: newUser };
   } catch (error) {
-    throw { message: "Error from server", status: 500 };
+    throw { message: "Error from server", status: 500, error };
   }
 };
 
@@ -107,4 +124,4 @@ const deleteOne = async (deleteFileInfo) => {
   }
 };
 
-export const userQuerie = { loginUser, registerUser, renewRefreshToken };
+export const userQuerie = { loginUser, registerUser, logoutUser, renewRefreshToken };

@@ -4,10 +4,10 @@ import { config } from "../../config.js";
 import { generateAccessToken } from "../../tools/generateAccessToken.js";
 
 export const registerController = async (req, res) => {
-  const { email, password } = req.user;
+  const { email, password, name } = req.user;
 
   try {
-    const user = await userQuerie.registerUser({ email, password });
+    const user = await userQuerie.registerUser({ email, password, name });
 
     if (user.status == 401) {
       res.status(user.status).json({
@@ -20,7 +20,7 @@ export const registerController = async (req, res) => {
     if (user.status == 201) {
       res.cookie("refreshToken", user.user.refreshToken, {
         httpOnly: true,
-        secure: true,
+        secure: false,
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
       res.status(user.status).json({
@@ -30,13 +30,13 @@ export const registerController = async (req, res) => {
           role: user.user.role,
           status: user.user.status,
         }),
-        user: { id: user.user._id, email: user.user.email },
+        user: { email: user.user.email, name: user.user.name, status: user.user.status, role: user.user.role, createdAt: user.user.createdAt },
       });
 
       return;
     }
   } catch (error) {
-    console.log("Error on register user", error);
+    console.log("Error on register user", error.error);
     res.status(error.status).json({ message: error.message });
   }
 };

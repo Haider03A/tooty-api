@@ -1,4 +1,5 @@
 import dotenv from 'dotenv'
+import { mongo } from 'mongoose'
 
 dotenv.config()
 
@@ -9,6 +10,8 @@ export const config = {
     jwtExpiresIn: process.env.JWT_EXPIRES_IN,
     refreshSecret: process.env.REFRESH_SECRET,
     refreshExpiresIn: process.env.REFRESH_EXPIRES_IN,
+    cookieExpiration: process.env.COOKIE_EXPIRATION,
+    mongoDbName: process.env.MONGO_DB_NAME
 
 
 }

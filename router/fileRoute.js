@@ -8,7 +8,7 @@ const router = express.Router();
 
 // <-- Single -->
 
-router.get("/:fileId", filesValidator.getOneValidator, filesController.getOne);
+// router.get("/:fileId", filesValidator.getOneValidator, filesController.getOne);
 router.post("/", filesValidator.addOneValidator, filesController.addOne);
 router.patch("/", filesValidator.updateOneValidator, filesController.updateOne);
 router.delete(
@@ -18,6 +18,10 @@ router.delete(
 );
 
 // <-- Group -->
+router.get(
+  "/group",
+  filesController.getAll
+);
 router.post(
   "/group",
   filesValidator.addGroupValidator,

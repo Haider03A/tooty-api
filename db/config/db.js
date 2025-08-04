@@ -1,8 +1,9 @@
 import { mongoose } from "mongoose";
+import { config } from "../../config.js";
 
 // DB info
 const dbHost = "mongodb://localhost:27017";
-const dbName = "tooty";
+const dbName = config.mongoDbName;
 const URL = `${dbHost}/${dbName}`;
 const options = {};
 

@@ -13,6 +13,11 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
+    name: {
+      type: String,
+      minlength: 2,
+      maxlength: 30,
+    },
     role: {
       type: String,
       lowercase: true,
@@ -33,8 +38,12 @@ const userSchema = new Schema(
 );
 
 userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
 
+  if (!this.name && this.email) {
+    this.name = this.email.split("@")[0];
+  }
+
+  if (!this.isModified("password")) return next();
   const saltRounds = 10;
   this.password = await bcrypt.hash(this.password, saltRounds);
   next();

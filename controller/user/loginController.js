@@ -19,9 +19,10 @@ export const loginController = async (req, res) => {
     if (user.status == 200) {
       res.cookie("refreshToken", user.user.refreshToken, {
         httpOnly: true,
-        secure: true,
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        secure: false,
+        maxAge: config.cookieExpiration,
       });
+
       res.status(user.status).json({
         message: user.message,
         accessToken: generateAccessToken({
@@ -29,7 +30,7 @@ export const loginController = async (req, res) => {
           role: user.user.role,
           status: user.user.status,
         }),
-        user: { id: user.user._id, email: user.user.email },
+        user: { email: user.user.email, name: user.user.name, status: user.user.status, role: user.user.role, createdAt: user.user.createdAt },
       });
 
       return;

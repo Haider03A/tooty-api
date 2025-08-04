@@ -4,17 +4,6 @@ import { PageModel } from "../model/pageModel.js";
 
 // <-- Single -->
 
-const getAll = async () => {
-  try {
-    const files = await FileModel.find({});
-
-    return files;
-  } catch (err) {
-    console.log(err);
-    throw { statusCode: 500, message: "Error from server" };
-  }
-};
-
 const getOne = async (filter) => {
   try {
     const file = await FileModel.findOne(filter);
@@ -76,6 +65,34 @@ const deleteOne = async (fileInfo) => {
 };
 
 // <-- Group -->
+
+const getAll = async (user) => {
+  try {
+    const userId = user.id;
+    const files = await FileModel.find({
+      userId,
+    });
+
+    if (files.length === 0) {
+      return {
+        statusCode: 200,
+        filesIsfound: files,
+        message: "Files are undefined",
+      };
+    }
+
+    if (files.length > 0) {
+      return {
+        statusCode: 200,
+        filesIsfound: files,
+        message: "ok",
+      };
+    }
+
+  } catch (error) {
+    throw { statusCode: 500, message: "Error from server", error };
+  }
+};
 
 const addGroup = async (filesInfo) => {
   try {
@@ -203,11 +220,11 @@ const deleteGroup = async (filesInfo, user) => {
 };
 
 export const FilesQuery = {
-  getAll,
   getOne,
   addOne,
   updateOne,
   deleteOne,
+  getAll,
   addGroup,
   updateGroup,
   deleteGroup,

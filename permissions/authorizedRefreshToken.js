@@ -11,10 +11,11 @@ export const authorizedRefreshToken = async (req, res, next) => {
   } catch (error) {
     if (error.name === "TokenExpiredError") {
       return res
+        .clearCookie("refreshToken")
         .status(401)
         .json({ message: "Expired refresh token!", tokenRefreshExpired: true });
     }
 
-    return res.status(401).json({ message: "Invalid refresh token!" });
+    return res.clearCookie("refreshToken").status(401).json({ message: "Invalid refresh token!" });
   }
 };

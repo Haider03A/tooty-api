@@ -90,6 +90,32 @@ const deleteOne = async (req, res) => {
 
 // <-- Group -->
 
+const getAll = async (req, res) => {
+  const { id: userId } = req.user;
+
+  try {
+    const { statusCode, filesIsfound, message } = await FilesQuery.getAll(
+      { id: userId }
+    );
+    res.status(statusCode).json({
+      filesIsfound: filesIsfound?.map((file, i) => {
+        return {
+          fileId: file._id,
+          fileName: file.fileName,
+        };
+      }),
+      statusGetsFiles: {
+        filesIsfoundCount: filesIsfound?.length,
+      },
+      message,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(error.statusCode).json({ message: error.message });
+    return;
+  }
+};
+
 const addGroup = async (req, res) => {
   const files = req.files;
   const { id: userId } = req.user;
@@ -204,6 +230,7 @@ export const filesController = {
   addOne,
   updateOne,
   deleteOne,
+  getAll,
   addGroup,
   updateGroup,
   deleteGroup,
