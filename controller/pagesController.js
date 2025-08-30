@@ -1,141 +1,125 @@
-import { PagesQuery } from '../db/models/queries/pagesQuerie.js'
-import { FilesQuery } from '../db/models/queries/filesQuerie.js'
+import { PagesQuery } from "../db/models/queries/pagesQuerie.js";
 
-import { pagesValidator } from '../validator/pagesVaildator.js'
+const addGroup = async (req, res) => {
+  const pages = req.pages;
+  const user = req.user;
 
+  const pagesInfo = pages.map((page) => {
+    return {
+      fileId: page.fileId,
+      userId: user.id,
+      tempPageId: page.tempPageId,
+      pageName: page.pageName,
+      pageTitle: page.pageTitle,
+    };
+  });
 
-const getAll = async (req, res) => {
-    try {
-        const pages = await PagesQuery.getAll()
-        res.status(200).json(pages);
-    } catch (err) {
-        console.log(err)
-        res.status(500).json({ message: 'Error from server' })
-    }
-}
+  try {
+    const { statusCode, newPages, pagesNotCreated, pagesToCreated, message } =
+      await PagesQuery.addGroup(pagesInfo, user);
+    res.status(statusCode).json({
+      pagesCreated: newPages?.map((page, i) => {
+        return {
+          pageId: page._id,
+          fileId: page.fileId,
+          tempPageId: pagesToCreated[i].tempPageId,
+          pageName: page.pageName,
+          pageTitle: page.pageTitle,
+        };
+      }),
+      pagesNotCreated: pagesNotCreated?.map((page) => {
+        return {
+          fileId: page.fileId,
+          tempPageId: page.tempPageId,
+          pageName: page.pageName,
+          pageTitle: page.pageTitle,
+        };
+      }),
+      statusCreatedPages: {
+        pagesCreatedCount: pagesToCreated?.length,
+        pagesNotCreatedCount: pagesNotCreated?.length,
+        pagesSendedFromClientCount: pages?.length,
+      },
+      message,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(error.statusCode).json({ message: error.message });
+    return;
+  }
+};
 
-const getMulti = async (req, res) => {
-    const { fileId } = req.params
-    const { error, value: pageInfo } = pagesValidator.getMultiSchema.validate({ fileId })
-    if (!error) {
-        try {
-            const pages = await PagesQuery.getFilter(pageInfo)
-            if (pages.length > 0) {
-                res.status(200).json(pages);
+const updateGroup = async (req, res) => {
+  const pages = req.pages;
+  const user = req.user;
 
-                return
-            }
-            res.status(400).json({ message: 'File Id is not defined' });
-        } catch (err) {
-            console.log(err)
-            res.status(500).json({ message: 'Error from server' })
-        }
-        return
-    }
-    res.status(400).json({ message: error.details[0].message })
-}
+  try {
+    const {
+      statusCode,
+      pagesToUpdate,
+      pagesNotUpdated,
+      statusUpdatesPages,
+      message,
+    } = await PagesQuery.updateGroup(pages, user);
 
-const getOne = async (req, res) => {
-    const { fileId, pageId } = req.params
-    const { error, value: pageInfo } = pagesValidator.getOneSchema.validate({ fileId, pageId })
-    if (!error) {
-        try {
-            const onePage = await PagesQuery.getOne(pageInfo)
-            if (onePage) {
-                res.status(200).json(onePage);
+    res.status(statusCode).json({
+      pagesUpdated: pagesToUpdate?.map((page) => ({
+        pageId: page.pageId,
+        newPageName: page.newPageName,
+        newPageTitle: page.newPageTitle,
+      })),
+      pagesNotUpdated,
+      statusUpdatesPages: {
+        pagesUpdatedCount: statusUpdatesPages?.modifiedCount,
+        pagesNotUpdatedCount: pagesNotUpdated?.length,
+        pagesSendedFromClientCount: pages?.length,
+      },
+      message,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(error.statusCode).json({ message: error.message });
+    return;
+  }
+};
 
-                return
-            }
-            res.status(400).json({ message: 'File Id or Page Id is not defined' });
-        } catch (err) {
-            console.log(err)
-            res.status(500).json({ message: 'Error from server' })
-        }
-        return
-    }
-    res.status(400).json({ message: error.details[0].message })
-}
-
-const addOne = async (req, res) => {
-    const { fileId } = req.params
-    const { pageName, pageTitle } = req.body
-
-    const { error, value: pageInformation } = pagesValidator.addOneSchema.validate({ fileId, pageName, pageTitle })
-
-    if (!error) {
-        try {
-            const fileInfo = await FilesQuery.getOne({ fileId: pageInformation.fileId })
-            if (fileInfo) {
-                try {
-                    const pageInfo = await PagesQuery.addOne(pageInformation)
-                    res.status(200).json(pageInfo)
-                } catch (err) {
-                    res.status(500).json({ message: 'Error from server' })
-                }
-
-                return
-            }
-            res.status(400).json({ message: 'File Id is not defined' })
-        } catch (err) {
-            console.log(err);
-            res.status(500).json({ message: 'Error from server' })
-        }
-
-        return
-    }
-    res.status(400).json({ message: error.details[0].message })
-}
-
-const updateOne = async (req, res) => {
-    const { fileId, pageId } = req.params
-    const { newPageName, newPageTitle } = req.query
-    const { error, value: newPageInfo } = pagesValidator.updateOneSchema.validate({ fileId, pageId, newPageName, newPageTitle })
-
-    if (!error) {
-        try {
-            const updatedPageInfo = await FilesQuery.updateOne(newPageInfo)
-            if (updatedPageInfo) {
-                res.status(200).json(updatedPageInfo)
-                
-                return
-            } 
-            res.status(400).json({ message: 'File Id is not defined' })
-        } catch (err) {
-            console.log(err)
-            res.status(500).json({ message: 'Error from server' })
-        }
-        
-        return
-    }
-    res.status(400).json({ message: error.details[0].message })
-
-}
-
-const deleteOne = async (req, res) => {
-    const { fileId, pageId } = req.params
-    const { error, value: deletePageInfo } = pagesValidator.daleteOneSchema.validate({ fileId, pageId })
-
-    if (!error) {
-        try {
-            const deletedPageInfo = await PagesQuery.deleteOne(deletePageInfo)
-            deletedPageInfo ? res.status(200).json(deletedPageInfo) : res.status(400).json({ message: 'File Id or Page Id is not defined' })
-        } catch (err) {
-            console.log(err)
-            res.status(500).json({ message: 'Error from server' })
-        }
-
-        return
-    }
-    res.status(400).json({ message: error.details[0].message })
-}
-
+const deleteGroup = async (req, res) => {
+  const pages = req.pages;
+  const user = req.user;
+  try {
+    const {
+      statusCode,
+      pagesDeleted,
+      pagesIdsNotDeleted,
+      statusDeletedPages,
+      message,
+    } = await PagesQuery.deleteGroup(pages, user);
+    res.status(statusCode).json({
+      pagesDeleted: pagesDeleted?.map((page) => {
+        return {
+          fileId: page.fileId,
+          pageId: page._id,
+          pageName: page.pageName,
+          pageTitle: page.pageTitle,
+        };
+      }),
+      pagesNotDeleted: pagesIdsNotDeleted.map((pageId) => ({ pageId })),
+      statusDeletePages: {
+        pagesDeletedCount: statusDeletedPages?.deletedCount,
+        pagesNotDeletedIds: pagesIdsNotDeleted?.length,
+        pagesSendedFromClientCount: pages?.length,
+      },
+      message,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(error.statusCode).json({ message: error.message });
+    return;
+  }
+};
 
 export const pagesController = {
-    getAll,
-    getMulti,
-    getOne,
-    addOne,
-    updateOne,
-    deleteOne
-
-} 
+  addGroup,
+  updateGroup,
+  deleteGroup,
+};
